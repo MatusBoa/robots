@@ -1,20 +1,21 @@
-package project
+package server
 
 import (
 	"context"
 	"log"
 
+	"github.com/MatusBoa/robots/api/genproto/robots"
 	"github.com/MatusBoa/robots/api/internal/repository"
 	"github.com/jackc/pgx/v5/pgtype"
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
 type ProjectGRPCServer struct {
-	ProjectServer
+	robots.ProjectServiceServer
 	DBPool *pgxpool.Pool
 }
 
-func (s *ProjectGRPCServer) GetAll(_ *ProjectGetAllRequest, stream Project_GetAllServer) error {
+func (s *ProjectGRPCServer) GetAll(_ *robots.ProjectGetAllRequest, stream robots.ProjectService_GetAllServer) error {
 	conn, err := s.DBPool.Acquire(stream.Context())
 	defer conn.Release()
 
@@ -36,7 +37,7 @@ func (s *ProjectGRPCServer) GetAll(_ *ProjectGetAllRequest, stream Project_GetAl
 			return err
 		}
 
-		if err := stream.Send(&ProjectModel{
+		if err := stream.Send(&robots.ProjectModel{
 			Id:        project.ID.String(),
 			Name:      project.Name,
 			CreatedAt: project.CreatedAt.Time.String(),
@@ -49,7 +50,7 @@ func (s *ProjectGRPCServer) GetAll(_ *ProjectGetAllRequest, stream Project_GetAl
 	return nil
 }
 
-func (s *ProjectGRPCServer) Get(ctx context.Context, request *ProjectGetRequest) (*ProjectModel, error) {
+func (s *ProjectGRPCServer) Get(ctx context.Context, request *robots.ProjectGetRequest) (*robots.ProjectModel, error) {
 	conn, err := s.DBPool.Acquire(ctx)
 	defer conn.Release()
 
@@ -72,7 +73,7 @@ func (s *ProjectGRPCServer) Get(ctx context.Context, request *ProjectGetRequest)
 		return nil, err
 	}
 
-	return &ProjectModel{
+	return &robots.ProjectModel{
 		Id:        project.ID.String(),
 		Name:      project.Name,
 		CreatedAt: project.CreatedAt.Time.String(),

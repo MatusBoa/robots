@@ -1,9 +1,13 @@
 syntax = "proto3";
-option go_package = "github.com/MatusBoa/robots/project";
+option go_package = "genproto/robots";
 
-package project;
+package robots;
 
-import "google/protobuf/empty.proto";
+// ----------------Generic---------------
+
+message Empty {}
+
+// ----------------Models----------------
 
 message ProjectModel {
     string id = 1;
@@ -11,11 +15,13 @@ message ProjectModel {
     string created_at = 3;
 }
 
-service Project {
+// --------ProjectService--------
+
+service ProjectService {
     rpc GetAll (ProjectGetAllRequest) returns (stream ProjectModel) {}
     rpc Get (ProjectGetRequest) returns (ProjectModel) {}
     rpc Create (ProjectCreateRequest) returns (ProjectModel) {}
-    rpc Delete (ProjectDeleteRequest) returns (google.protobuf.Empty) {}
+    rpc Delete (ProjectDeleteRequest) returns (Empty) {}
 }
 
 message ProjectGetAllRequest {}

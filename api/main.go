@@ -6,7 +6,8 @@ import (
 	"log"
 	"net"
 
-	"github.com/MatusBoa/robots/api/project"
+	"github.com/MatusBoa/robots/api/genproto/robots"
+	"github.com/MatusBoa/robots/api/internal/server"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
@@ -31,7 +32,7 @@ func main() {
 	s := grpc.NewServer()
 	reflection.Register(s)
 
-	project.RegisterProjectServer(s, &project.ProjectGRPCServer{
+	robots.RegisterProjectServiceServer(s, &server.ProjectGRPCServer{
 		DBPool: dp,
 	})
 
