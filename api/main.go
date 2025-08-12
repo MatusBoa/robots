@@ -16,13 +16,13 @@ import (
 func main() {
 	ctx := context.Background()
 
-	dp, err := pgxpool.New(ctx, "postgres://postgres@127.0.0.1:5432/postgres")
+	pool, err := pgxpool.New(ctx, "postgres://postgres@127.0.0.1:5432/postgres")
 
 	if err != nil {
 		log.Fatalf("failed to connect: %v", err)
 	}
 
-	defer dp.Close()
+	defer pool.Close()
 
 	lis, err := net.Listen("tcp", fmt.Sprintf(":%d", 50051))
 	if err != nil {
@@ -33,7 +33,7 @@ func main() {
 	reflection.Register(s)
 
 	robots.RegisterProjectServiceServer(s, &server.ProjectGRPCServer{
-		DBPool: dp,
+		DBPool: pool,
 	})
 
 	log.Printf("server listening at %v", lis.Addr())

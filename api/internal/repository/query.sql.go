@@ -11,6 +11,36 @@ import (
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
+const createProject = `-- name: CreateProject :one
+INSERT INTO projects (
+  id, name
+) VALUES (
+  $1, $2
+)
+RETURNING id, name, created_at
+`
+
+type CreateProjectParams struct {
+	ID   pgtype.UUID
+	Name string
+}
+
+func (q *Queries) CreateProject(ctx context.Context, arg CreateProjectParams) (Project, error) {
+	row := q.db.QueryRow(ctx, createProject, arg.ID, arg.Name)
+	var i Project
+	err := row.Scan(&i.ID, &i.Name, &i.CreatedAt)
+	return i, err
+}
+
+const deleteProject = `-- name: DeleteProject :exec
+DELETE FROM projects WHERE id = $1
+`
+
+func (q *Queries) DeleteProject(ctx context.Context, id pgtype.UUID) error {
+	_, err := q.db.Exec(ctx, deleteProject, id)
+	return err
+}
+
 const getAllProjects = `-- name: GetAllProjects :many
 SELECT id, name, created_at FROM projects
 `
