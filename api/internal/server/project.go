@@ -3,6 +3,7 @@ package server
 import (
 	"context"
 	"log"
+	"time"
 
 	"github.com/MatusBoa/robots/api/genproto/robots"
 	"github.com/MatusBoa/robots/api/internal/repository"
@@ -41,7 +42,7 @@ func (s *ProjectGRPCServer) GetAll(_ *robots.ProjectGetAllRequest, stream robots
 		if err := stream.Send(&robots.ProjectModel{
 			Id:        project.ID.String(),
 			Name:      project.Name,
-			CreatedAt: project.CreatedAt.Time.String(),
+			CreatedAt: project.CreatedAt.Time.Format(time.RFC3339),
 		}); err != nil {
 			log.Print(err)
 			return err
@@ -77,7 +78,7 @@ func (s *ProjectGRPCServer) Get(ctx context.Context, request *robots.ProjectGetR
 	return &robots.ProjectModel{
 		Id:        project.ID.String(),
 		Name:      project.Name,
-		CreatedAt: project.CreatedAt.Time.String(),
+		CreatedAt: project.CreatedAt.Time.Format(time.RFC3339),
 	}, nil
 }
 
@@ -110,7 +111,7 @@ func (s *ProjectGRPCServer) Create(ctx context.Context, request *robots.ProjectC
 	return &robots.ProjectModel{
 		Id:        project.ID.String(),
 		Name:      project.Name,
-		CreatedAt: project.CreatedAt.Time.String(),
+		CreatedAt: project.CreatedAt.Time.Format(time.RFC3339),
 	}, nil
 }
 
