@@ -46,86 +46,59 @@ export default async function Home() {
   const count = projects.length;
 
   return (
-    <div className="min-h-dvh bg-background text-foreground">
-      <main className="container mx-auto max-w-6xl p-6 space-y-6">
-        <header className="flex items-center justify-between gap-4">
-          <div>
-            <h1 className="text-2xl sm:text-3xl font-semibold tracking-tight">Projects</h1>
-            <p className="mt-1 text-sm text-muted-foreground">Fetched via gRPC from the robots ProjectService</p>
-          </div>
-          <Badge variant="secondary">
-            {count} {count === 1 ? "project" : "projects"}
-          </Badge>
-        </header>
-
-        {/* Create project form */}
-        <div>
-          <form action={createProjectAction} className="flex items-center gap-3">
-            <Input
-              type="text"
-              name="name"
-              placeholder="New project name"
-              className="w-72"
-            />
-            <Button type="submit">
-              Create project
-            </Button>
-          </form>
-        </div>
-
+    <div className="container mx-auto">
         {count === 0 ? (
-          <Card className="border-dashed">
-            <CardContent className="p-10 text-center">
-              <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-muted">🗂️</div>
-              <CardTitle className="text-lg">No projects found</CardTitle>
-              <CardDescription className="mt-1">Either there are no projects yet or the gRPC server isn't reachable.</CardDescription>
-            </CardContent>
-          </Card>
+            <Card className="border-dashed">
+                <CardContent className="p-10 text-center">
+                    <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-muted">🗂️</div>
+                    <CardTitle className="text-lg">No projects found</CardTitle>
+                    <CardDescription className="mt-1">Either there are no projects yet or the gRPC server isn't reachable.</CardDescription>
+                </CardContent>
+            </Card>
         ) : (
-          <div className="rounded-lg border">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Name</TableHead>
-                  <TableHead>ID</TableHead>
-                  <TableHead>Created</TableHead>
-                  <TableHead className="text-right">Actions</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {projects.map((p) => (
-                  <TableRow key={p.id}>
-                    <TableCell>
-                      <div className="max-w-[280px] truncate font-medium">{p.name || "Untitled"}</div>
-                    </TableCell>
-                    <TableCell>
-                      <span className="font-mono text-xs text-muted-foreground break-all">{p.id}</span>
-                    </TableCell>
-                    <TableCell>
-                      {p.createdAt ? <span>{new Date(p.createdAt).toLocaleString()}</span> : <span className="text-muted-foreground">—</span>}
-                    </TableCell>
-                    <TableCell>
-                      <div className="flex justify-end">
-                        <form action={deleteProjectAction}>
-                          <input type="hidden" name="id" value={p.id} />
-                          <Button
-                            type="submit"
-                            variant="destructive"
-                            size="sm"
-                            aria-label={`Delete project ${p.name || p.id}`}
-                          >
-                            Delete
-                          </Button>
-                        </form>
-                      </div>
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </div>
+            <div className="rounded-lg border">
+                <Table>
+                    <TableHeader>
+                        <TableRow>
+                            <TableHead>Name</TableHead>
+                            <TableHead>ID</TableHead>
+                            <TableHead>Created</TableHead>
+                            <TableHead className="text-right">Actions</TableHead>
+                        </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                        {projects.map((p) => (
+                            <TableRow key={p.id}>
+                                <TableCell>
+                                    <div className="max-w-[280px] truncate font-medium">{p.name || "Untitled"}</div>
+                                </TableCell>
+                                <TableCell>
+                                    <span className="font-mono text-xs text-muted-foreground break-all">{p.id}</span>
+                                </TableCell>
+                                <TableCell>
+                                    {p.createdAt ? <span>{new Date(p.createdAt).toLocaleString()}</span> : <span className="text-muted-foreground">—</span>}
+                                </TableCell>
+                                <TableCell>
+                                    <div className="flex justify-end">
+                                        <form action={deleteProjectAction}>
+                                            <input type="hidden" name="id" value={p.id} />
+                                            <Button
+                                                type="submit"
+                                                variant="destructive"
+                                                size="sm"
+                                                aria-label={`Delete project ${p.name || p.id}`}
+                                            >
+                                                Delete
+                                            </Button>
+                                        </form>
+                                    </div>
+                                </TableCell>
+                            </TableRow>
+                        ))}
+                    </TableBody>
+                </Table>
+            </div>
         )}
-      </main>
     </div>
   );
 }

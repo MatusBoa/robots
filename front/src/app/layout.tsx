@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
+import Logo from "@/components/layout/logo"
+import { Button } from "@/components/ui/button"
 
 const inter = Inter({
   variable: "--font-inter",
@@ -17,13 +19,21 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  return (
-    <html lang="en">
-      <body
-        className={`${inter.variable} antialiased`}
-      >
-        {children}
-      </body>
-    </html>
-  );
+    return (
+        <html lang="en">
+            <body
+                className={`${inter.variable} antialiased space-y-6`}
+            >
+                <header className="pt-6 container mx-auto flex items-center">
+                    <Logo />
+
+                    <Button className="ml-auto">Create new project</Button>
+                </header>
+
+                <main>
+                    {children}
+                </main>
+          </body>
+        </html>
+    );
 }
