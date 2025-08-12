@@ -1,0 +1,33 @@
+syntax = "proto3";
+option go_package = "github.com/MatusBoa/robots/project";
+
+package project;
+
+import "google/protobuf/empty.proto";
+
+message ProjectModel {
+    string id = 1;
+    string name = 2;
+    string created_at = 3;
+}
+
+service Project {
+    rpc GetAll (ProjectGetAllRequest) returns (stream ProjectModel) {}
+    rpc Get (ProjectGetRequest) returns (ProjectModel) {}
+    rpc Create (ProjectCreateRequest) returns (ProjectModel) {}
+    rpc Delete (ProjectDeleteRequest) returns (google.protobuf.Empty) {}
+}
+
+message ProjectGetAllRequest {}
+
+message ProjectGetRequest {
+    string id = 1;
+}
+
+message ProjectCreateRequest {
+    string name = 1;
+}
+
+message ProjectDeleteRequest {
+    string id = 1;
+}
