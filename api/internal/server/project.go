@@ -17,7 +17,7 @@ type ProjectGRPCServer struct {
 	DBPool *pgxpool.Pool
 }
 
-func (s *ProjectGRPCServer) GetAll(_ *robots.ProjectGetAllRequest, stream robots.ProjectService_GetAllServer) error {
+func (s *ProjectGRPCServer) GetAll(_ *robots.Empty, stream robots.ProjectService_GetAllServer) error {
 	conn, err := s.DBPool.Acquire(stream.Context())
 	defer conn.Release()
 
@@ -139,4 +139,85 @@ func (s *ProjectGRPCServer) Delete(ctx context.Context, request *robots.ProjectD
 	}
 
 	return &robots.Empty{}, nil
+}
+
+func (s *ProjectGRPCServer) GetBots(request *robots.ProjectGetBotsRequest, stream robots.ProjectService_GetBotsServer) error {
+	conn, err := s.DBPool.Acquire(stream.Context())
+	defer conn.Release()
+
+	if err != nil {
+		log.Print(err)
+		return err
+	}
+
+	var id pgtype.UUID
+
+	if err := id.Scan(request.GetProjectId()); err != nil {
+		log.Print(err)
+		return err
+	}
+
+	bots, err := repository.New(conn).GetProjectBots(stream.Context(), id)
+
+	if err != nil {
+		log.Print(err)
+		return err
+	}
+
+	for _, bot := range bots {
+		if err := stream.Context().Err(); err != nil {
+			log.Print(err)
+			return err
+		}
+
+		if err := stream.Send(&robots.ProjectBotModel{
+			Id:    bot.ID.String(),
+			Name:  bot.Name,
+			Paths: []*robots.ProjectBotPathModel{},
+		}); err != nil {
+			log.Print(err)
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (s *ProjectGRPCServer) CreateBot(ctx context.Context, request *robots.ProjectCreateBotRequest) (*robots.ProjectBotModel, error) {
+	conn, err := s.DBPool.Acquire(ctx)
+	defer conn.Release()
+
+	if err != nil {
+		log.Print(err)
+		return nil, err
+	}
+
+	var projectId pgtype.UUID
+
+	if err = projectId.Scan(request.GetProjectId()); err != nil {
+		return nil, err
+	}
+
+	uuid, err := utility.NewPgUuid()
+
+	if err != nil {
+		log.Print(err)
+		return nil, err
+	}
+
+	projectBot, err := repository.New(conn).CreateProjectBot(ctx, repository.CreateProjectBotParams{
+		ID:        *uuid,
+		ProjectID: projectId,
+		Name:      request.GetName(),
+	})
+
+	if err != nil {
+		return nil, err
+	}
+
+	return &robots.ProjectBotModel{
+		Id:    projectBot.ID.String(),
+		Name:  projectBot.Name,
+		Paths: []*robots.ProjectBotPathModel{},
+	}, nil
 }

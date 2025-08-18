@@ -15,16 +15,30 @@ message ProjectModel {
     string created_at = 3;
 }
 
+message ProjectBotPathModel {
+    string id = 1;
+    string path = 2;
+    bool allowed = 3;
+}
+
+message ProjectBotModel {
+    string id = 1;
+    string name = 2;
+    repeated ProjectBotPathModel paths = 3;
+}
+
 // --------ProjectService--------
 
 service ProjectService {
-    rpc GetAll (ProjectGetAllRequest) returns (stream ProjectModel) {}
+    // Basic CRUD
+    rpc GetAll (Empty) returns (stream ProjectModel) {}
     rpc Get (ProjectGetRequest) returns (ProjectModel) {}
     rpc Create (ProjectCreateRequest) returns (ProjectModel) {}
     rpc Delete (ProjectDeleteRequest) returns (Empty) {}
-}
 
-message ProjectGetAllRequest {}
+    rpc GetBots(ProjectGetBotsRequest) returns (stream ProjectBotModel) {}
+    rpc CreateBot(ProjectCreateBotRequest) returns (ProjectBotModel) {}
+}
 
 message ProjectGetRequest {
     string id = 1;
@@ -36,4 +50,15 @@ message ProjectCreateRequest {
 
 message ProjectDeleteRequest {
     string id = 1;
+}
+
+message ProjectGetBotsRequest {
+    string project_id = 1;
+}
+
+message ProjectCreateBotRequest {
+    string project_id = 1;
+    string name = 2;
+    string path = 3;
+    bool allowed = 4;
 }

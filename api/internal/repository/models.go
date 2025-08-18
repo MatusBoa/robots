@@ -13,3 +13,18 @@ type Project struct {
 	Name      string
 	CreatedAt pgtype.Timestamptz
 }
+
+type ProjectBot struct {
+	ID        pgtype.UUID
+	ProjectID pgtype.UUID
+	Name      string
+	CreatedAt pgtype.Timestamptz
+}
+
+type ProjectBotPath struct {
+	ID           pgtype.UUID
+	ProjectBotID pgtype.UUID
+	Path         string
+	Allowed      bool
+	CreatedAt    pgtype.Timestamptz
+}

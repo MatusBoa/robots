@@ -19,20 +19,25 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	ProjectService_GetAll_FullMethodName = "/robots.ProjectService/GetAll"
-	ProjectService_Get_FullMethodName    = "/robots.ProjectService/Get"
-	ProjectService_Create_FullMethodName = "/robots.ProjectService/Create"
-	ProjectService_Delete_FullMethodName = "/robots.ProjectService/Delete"
+	ProjectService_GetAll_FullMethodName    = "/robots.ProjectService/GetAll"
+	ProjectService_Get_FullMethodName       = "/robots.ProjectService/Get"
+	ProjectService_Create_FullMethodName    = "/robots.ProjectService/Create"
+	ProjectService_Delete_FullMethodName    = "/robots.ProjectService/Delete"
+	ProjectService_GetBots_FullMethodName   = "/robots.ProjectService/GetBots"
+	ProjectService_CreateBot_FullMethodName = "/robots.ProjectService/CreateBot"
 )
 
 // ProjectServiceClient is the client API for ProjectService service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type ProjectServiceClient interface {
-	GetAll(ctx context.Context, in *ProjectGetAllRequest, opts ...grpc.CallOption) (grpc.ServerStreamingClient[ProjectModel], error)
+	// Basic CRUD
+	GetAll(ctx context.Context, in *Empty, opts ...grpc.CallOption) (grpc.ServerStreamingClient[ProjectModel], error)
 	Get(ctx context.Context, in *ProjectGetRequest, opts ...grpc.CallOption) (*ProjectModel, error)
 	Create(ctx context.Context, in *ProjectCreateRequest, opts ...grpc.CallOption) (*ProjectModel, error)
 	Delete(ctx context.Context, in *ProjectDeleteRequest, opts ...grpc.CallOption) (*Empty, error)
+	GetBots(ctx context.Context, in *ProjectGetBotsRequest, opts ...grpc.CallOption) (grpc.ServerStreamingClient[ProjectBotModel], error)
+	CreateBot(ctx context.Context, in *ProjectCreateBotRequest, opts ...grpc.CallOption) (*ProjectBotModel, error)
 }
 
 type projectServiceClient struct {
@@ -43,13 +48,13 @@ func NewProjectServiceClient(cc grpc.ClientConnInterface) ProjectServiceClient {
 	return &projectServiceClient{cc}
 }
 
-func (c *projectServiceClient) GetAll(ctx context.Context, in *ProjectGetAllRequest, opts ...grpc.CallOption) (grpc.ServerStreamingClient[ProjectModel], error) {
+func (c *projectServiceClient) GetAll(ctx context.Context, in *Empty, opts ...grpc.CallOption) (grpc.ServerStreamingClient[ProjectModel], error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	stream, err := c.cc.NewStream(ctx, &ProjectService_ServiceDesc.Streams[0], ProjectService_GetAll_FullMethodName, cOpts...)
 	if err != nil {
 		return nil, err
 	}
-	x := &grpc.GenericClientStream[ProjectGetAllRequest, ProjectModel]{ClientStream: stream}
+	x := &grpc.GenericClientStream[Empty, ProjectModel]{ClientStream: stream}
 	if err := x.ClientStream.SendMsg(in); err != nil {
 		return nil, err
 	}
@@ -92,14 +97,46 @@ func (c *projectServiceClient) Delete(ctx context.Context, in *ProjectDeleteRequ
 	return out, nil
 }
 
+func (c *projectServiceClient) GetBots(ctx context.Context, in *ProjectGetBotsRequest, opts ...grpc.CallOption) (grpc.ServerStreamingClient[ProjectBotModel], error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	stream, err := c.cc.NewStream(ctx, &ProjectService_ServiceDesc.Streams[1], ProjectService_GetBots_FullMethodName, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	x := &grpc.GenericClientStream[ProjectGetBotsRequest, ProjectBotModel]{ClientStream: stream}
+	if err := x.ClientStream.SendMsg(in); err != nil {
+		return nil, err
+	}
+	if err := x.ClientStream.CloseSend(); err != nil {
+		return nil, err
+	}
+	return x, nil
+}
+
+// This type alias is provided for backwards compatibility with existing code that references the prior non-generic stream type by name.
+type ProjectService_GetBotsClient = grpc.ServerStreamingClient[ProjectBotModel]
+
+func (c *projectServiceClient) CreateBot(ctx context.Context, in *ProjectCreateBotRequest, opts ...grpc.CallOption) (*ProjectBotModel, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(ProjectBotModel)
+	err := c.cc.Invoke(ctx, ProjectService_CreateBot_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // ProjectServiceServer is the server API for ProjectService service.
 // All implementations must embed UnimplementedProjectServiceServer
 // for forward compatibility.
 type ProjectServiceServer interface {
-	GetAll(*ProjectGetAllRequest, grpc.ServerStreamingServer[ProjectModel]) error
+	// Basic CRUD
+	GetAll(*Empty, grpc.ServerStreamingServer[ProjectModel]) error
 	Get(context.Context, *ProjectGetRequest) (*ProjectModel, error)
 	Create(context.Context, *ProjectCreateRequest) (*ProjectModel, error)
 	Delete(context.Context, *ProjectDeleteRequest) (*Empty, error)
+	GetBots(*ProjectGetBotsRequest, grpc.ServerStreamingServer[ProjectBotModel]) error
+	CreateBot(context.Context, *ProjectCreateBotRequest) (*ProjectBotModel, error)
 	mustEmbedUnimplementedProjectServiceServer()
 }
 
@@ -110,7 +147,7 @@ type ProjectServiceServer interface {
 // pointer dereference when methods are called.
 type UnimplementedProjectServiceServer struct{}
 
-func (UnimplementedProjectServiceServer) GetAll(*ProjectGetAllRequest, grpc.ServerStreamingServer[ProjectModel]) error {
+func (UnimplementedProjectServiceServer) GetAll(*Empty, grpc.ServerStreamingServer[ProjectModel]) error {
 	return status.Errorf(codes.Unimplemented, "method GetAll not implemented")
 }
 func (UnimplementedProjectServiceServer) Get(context.Context, *ProjectGetRequest) (*ProjectModel, error) {
@@ -121,6 +158,12 @@ func (UnimplementedProjectServiceServer) Create(context.Context, *ProjectCreateR
 }
 func (UnimplementedProjectServiceServer) Delete(context.Context, *ProjectDeleteRequest) (*Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Delete not implemented")
+}
+func (UnimplementedProjectServiceServer) GetBots(*ProjectGetBotsRequest, grpc.ServerStreamingServer[ProjectBotModel]) error {
+	return status.Errorf(codes.Unimplemented, "method GetBots not implemented")
+}
+func (UnimplementedProjectServiceServer) CreateBot(context.Context, *ProjectCreateBotRequest) (*ProjectBotModel, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method CreateBot not implemented")
 }
 func (UnimplementedProjectServiceServer) mustEmbedUnimplementedProjectServiceServer() {}
 func (UnimplementedProjectServiceServer) testEmbeddedByValue()                        {}
@@ -144,11 +187,11 @@ func RegisterProjectServiceServer(s grpc.ServiceRegistrar, srv ProjectServiceSer
 }
 
 func _ProjectService_GetAll_Handler(srv interface{}, stream grpc.ServerStream) error {
-	m := new(ProjectGetAllRequest)
+	m := new(Empty)
 	if err := stream.RecvMsg(m); err != nil {
 		return err
 	}
-	return srv.(ProjectServiceServer).GetAll(m, &grpc.GenericServerStream[ProjectGetAllRequest, ProjectModel]{ServerStream: stream})
+	return srv.(ProjectServiceServer).GetAll(m, &grpc.GenericServerStream[Empty, ProjectModel]{ServerStream: stream})
 }
 
 // This type alias is provided for backwards compatibility with existing code that references the prior non-generic stream type by name.
@@ -208,6 +251,35 @@ func _ProjectService_Delete_Handler(srv interface{}, ctx context.Context, dec fu
 	return interceptor(ctx, in, info, handler)
 }
 
+func _ProjectService_GetBots_Handler(srv interface{}, stream grpc.ServerStream) error {
+	m := new(ProjectGetBotsRequest)
+	if err := stream.RecvMsg(m); err != nil {
+		return err
+	}
+	return srv.(ProjectServiceServer).GetBots(m, &grpc.GenericServerStream[ProjectGetBotsRequest, ProjectBotModel]{ServerStream: stream})
+}
+
+// This type alias is provided for backwards compatibility with existing code that references the prior non-generic stream type by name.
+type ProjectService_GetBotsServer = grpc.ServerStreamingServer[ProjectBotModel]
+
+func _ProjectService_CreateBot_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ProjectCreateBotRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ProjectServiceServer).CreateBot(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ProjectService_CreateBot_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ProjectServiceServer).CreateBot(ctx, req.(*ProjectCreateBotRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // ProjectService_ServiceDesc is the grpc.ServiceDesc for ProjectService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -227,11 +299,20 @@ var ProjectService_ServiceDesc = grpc.ServiceDesc{
 			MethodName: "Delete",
 			Handler:    _ProjectService_Delete_Handler,
 		},
+		{
+			MethodName: "CreateBot",
+			Handler:    _ProjectService_CreateBot_Handler,
+		},
 	},
 	Streams: []grpc.StreamDesc{
 		{
 			StreamName:    "GetAll",
 			Handler:       _ProjectService_GetAll_Handler,
+			ServerStreams: true,
+		},
+		{
+			StreamName:    "GetBots",
+			Handler:       _ProjectService_GetBots_Handler,
 			ServerStreams: true,
 		},
 	},

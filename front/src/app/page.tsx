@@ -1,26 +1,10 @@
-import { listProjects, type ProjectModel, createProject, deleteProject } from "../lib/robotsClient";
+import { createProject, deleteProject, listProjects, type ProjectModel } from "../lib/robotsClient";
 import { revalidatePath } from "next/cache";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
+import { Card, CardContent, CardDescription, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 
 export default async function Home() {
-  // Server actions for create and delete
-  async function createProjectAction(formData: FormData) {
-    "use server";
-    const name = (formData.get("name") || "").toString().trim() || "Untitled";
-    try {
-      await createProject(name);
-    } catch (e) {
-      console.log(e);
-      // swallow to keep UX responsive even if server is down
-    } finally {
-      revalidatePath("/");
-    }
-  }
-
   async function deleteProjectAction(formData: FormData) {
     "use server";
     const id = (formData.get("id") || "").toString();
@@ -61,19 +45,17 @@ export default async function Home() {
                     <TableHeader>
                         <TableRow>
                             <TableHead>Name</TableHead>
-                            <TableHead>ID</TableHead>
                             <TableHead>Created</TableHead>
-                            <TableHead className="text-right">Actions</TableHead>
+                            <TableHead />
                         </TableRow>
                     </TableHeader>
                     <TableBody>
                         {projects.map((p) => (
                             <TableRow key={p.id}>
                                 <TableCell>
-                                    <div className="max-w-[280px] truncate font-medium">{p.name || "Untitled"}</div>
-                                </TableCell>
-                                <TableCell>
-                                    <span className="font-mono text-xs text-muted-foreground break-all">{p.id}</span>
+                                    <div className="max-w-[280px] truncate font-medium">
+                                        {p.name || "Untitled"}
+                                    </div>
                                 </TableCell>
                                 <TableCell>
                                     {p.createdAt ? <span>{new Date(p.createdAt).toLocaleString()}</span> : <span className="text-muted-foreground">—</span>}

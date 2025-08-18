@@ -1,0 +1,7 @@
+CREATE TABLE project_bots (
+    id UUID PRIMARY KEY,
+    project_id UUID NOT NULL,
+    name VARCHAR(255) NOT NULL,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (project_id) REFERENCES projects (id) ON DELETE CASCADE
+);

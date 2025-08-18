@@ -13,9 +13,9 @@ import (
 
 const createProject = `-- name: CreateProject :one
 INSERT INTO projects (
-  id, name
+    id, name
 ) VALUES (
-  $1, $2
+    $1, $2
 )
 RETURNING id, name, created_at
 `
@@ -29,6 +29,33 @@ func (q *Queries) CreateProject(ctx context.Context, arg CreateProjectParams) (P
 	row := q.db.QueryRow(ctx, createProject, arg.ID, arg.Name)
 	var i Project
 	err := row.Scan(&i.ID, &i.Name, &i.CreatedAt)
+	return i, err
+}
+
+const createProjectBot = `-- name: CreateProjectBot :one
+INSERT INTO project_bots (
+    id, project_id, name
+) VALUES (
+    $1, $2, $3
+)
+returning id, project_id, name, created_at
+`
+
+type CreateProjectBotParams struct {
+	ID        pgtype.UUID
+	ProjectID pgtype.UUID
+	Name      string
+}
+
+func (q *Queries) CreateProjectBot(ctx context.Context, arg CreateProjectBotParams) (ProjectBot, error) {
+	row := q.db.QueryRow(ctx, createProjectBot, arg.ID, arg.ProjectID, arg.Name)
+	var i ProjectBot
+	err := row.Scan(
+		&i.ID,
+		&i.ProjectID,
+		&i.Name,
+		&i.CreatedAt,
+	)
 	return i, err
 }
 
@@ -75,4 +102,34 @@ func (q *Queries) GetProject(ctx context.Context, id pgtype.UUID) (Project, erro
 	var i Project
 	err := row.Scan(&i.ID, &i.Name, &i.CreatedAt)
 	return i, err
+}
+
+const getProjectBots = `-- name: GetProjectBots :many
+SELECT id, project_id, name, created_at from project_bots
+WHERE project_id = $1
+`
+
+func (q *Queries) GetProjectBots(ctx context.Context, projectID pgtype.UUID) ([]ProjectBot, error) {
+	rows, err := q.db.Query(ctx, getProjectBots, projectID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []ProjectBot
+	for rows.Next() {
+		var i ProjectBot
+		if err := rows.Scan(
+			&i.ID,
+			&i.ProjectID,
+			&i.Name,
+			&i.CreatedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
 }
