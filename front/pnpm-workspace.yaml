@@ -1,5 +1,6 @@
 onlyBuiltDependencies:
   - '@tailwindcss/oxide'
+  - grpc-tools
   - protobufjs
   - sharp
   - unrs-resolver

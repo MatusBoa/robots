@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
 import Logo from "@/components/layout/logo"
-import { CreateProjectButton } from "@/components/project/create"
 
 const inter = Inter({
   variable: "--font-inter",
@@ -27,7 +26,7 @@ export default function RootLayout({
                 <header className="pt-6 container mx-auto flex items-center">
                     <Logo />
 
-                    <CreateProjectButton />
+                    {/*<CreateProjectButton />*/}
                 </header>
 
                 <main>
