@@ -1,18 +1,13 @@
 "use server";
 
-import { createProject } from "@/lib/robotsClient"
-import { revalidatePath } from "next/cache"
+import { useProjectService } from "@/lib/project"
+import { ProjectCreateRequest, ProjectModel } from "@/generated/protos/robots_pb"
 
 export async function createProjectAction(formData: FormData) {
-    const name = (formData.get("name") || "").toString().trim() || "Untitled";
-    try {
-        await createProject(name);
+    const req = new ProjectCreateRequest()
+    req.setName(formData.get('name') as string)
 
+    useProjectService().create(req, (err, model) => {
 
-    } catch (e) {
-        console.log(e);
-        // swallow to keep UX responsive even if server is down
-    } finally {
-        revalidatePath("/");
-    }
+    })
 }
