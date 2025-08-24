@@ -5,6 +5,9 @@ import { cn, useGrpcStream } from "@/lib/utils"
 import { Empty } from "@/generated/protos/robots_pb"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { useProjectService } from "@/lib/project"
+import { Button } from "@/components/ui/button"
+import Link from "next/link"
+import { ExternalLink, LinkIcon } from "lucide-react"
 
 export async function ProjectList({ className, ...props }: ComponentProps<"div">) {
     const projects = await useGrpcStream(useProjectService().getAll(new Empty()))
@@ -31,14 +34,18 @@ export async function ProjectList({ className, ...props }: ComponentProps<"div">
                 {projects.map((p) => (
                     <TableRow key={p.getId()}>
                         <TableCell>
-                            <div className="max-w-[280px] truncate font-medium">
-                                {p.getName()}
-                            </div>
+                            {p.getName()}
                         </TableCell>
                         <TableCell>
                             <span>{new Date(p.getCreatedAt()).toLocaleString()}</span>
                         </TableCell>
-                        <TableCell>
+                        <TableCell className="flex justify-end">
+                            <Button variant="ghost" asChild>
+                                <Link href={`project/${p.getId()}`}>
+                                    <ExternalLink className="size-4" />
+                                    Show
+                                </Link>
+                            </Button>
                             <div className="flex justify-end">
                                 {/*<form action={deleteProjectAction}>*/}
                                 {/*    <input type="hidden" name="id" value={p.id} />*/}

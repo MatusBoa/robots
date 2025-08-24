@@ -11,7 +11,7 @@ export function CreateProjectButton() {
 
     return <Dialog open={open} onOpenChange={setOpen}>
         <DialogTrigger asChild>
-            <Button className="ml-auto">Create new project</Button>
+            <Button className="ml-auto" variant="secondary">Create new project</Button>
         </DialogTrigger>
         <DialogContent>
             <DialogHeader className="space-y-4">
